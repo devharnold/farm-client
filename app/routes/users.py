@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from utils.password import verify_password
 from utils.token import create_access_token
 from schemas import UserLogin
-from database import get_user_by_email
+from app.services.user_service import get_user_by_email
 
 router = APIRouter()
 

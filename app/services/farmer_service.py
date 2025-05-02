@@ -3,7 +3,7 @@ import uuid
 from uuid import uuid4
 import logging
 from datetime import datetime
-from fastapi import HTTPException, status, Request
+from fastapi import HTTPException, status
 from app.db.connection import get_db_connection
 from app.auth.jwt_handler import create_access_token
 from app.auth.password_utils import hash_password, validate_password_strength, verify_password
@@ -87,7 +87,7 @@ class FarmerService:
         finally:
             self._cleanup()
 
-    def add_products(self, farmer_id, name, category, quantity, price, date=datetime.now()):
+    def add_products(self, farmer_id, name, category, quantity, price, created_at=datetime.now(), updated_at=datetime.now()):
         # check if product exists
         self.cursor.execute(
             "SELECT product_id, quantity FROM products WHERE farmer_id = %s AND name = %s AND category = %s",
@@ -100,15 +100,15 @@ class FarmerService:
             product_id, current_quantity = existing_product
             new_quantity = current_quantity + quantity # add the new quantity to the existing one
             self.cursor.execute(
-                "UPDATE products SET quantity = %s, date = %s WHERE product_id = %s",
-                (new_quantity, date, product_id)
+                "UPDATE products SET quantity = %s, created_at = %s WHERE product_id = %s",
+                (new_quantity, created_at, product_id)
             )
         else:
             # product doesn't exist, insert a new one
             product_id = str(uuid.uuid4())[:5]
             self.cursor.execute(
-                "INSERT INTO products (product_id, farmer_id, name, category, quantity, price, date) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (product_id, farmer_id, name, category, quantity, price, date)
+                "INSERT INTO products (product_id, farmer_id, name, category, quantity, price, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (product_id, farmer_id, name, category, quantity, price, created_at, updated_at)
             )
 
         self._cleanup()
