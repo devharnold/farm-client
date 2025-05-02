@@ -51,6 +51,37 @@ class UserService:
         finally:
             self._cleanup
 
+    def user_login(self, email: str, password: str):
+        try:
+            self.cursor.execute(
+                "SELECT id, password FROM users WHERE email = %s", (email,)
+            )
+            user = self.cursor.fetchone()
+
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found"
+                )
+            
+            user_id, hashed_password = user
+
+            if not verify_password(password, hashed_password):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect password"
+                )
+            token = create_access_token({"user_id": user_id})
+            return {"access_token": token}
+        
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Login failed: {str(e)}"
+            )
+        finally:
+            self._cleanup()
+
     def _cleanup(self):
         if self.cursor:
             self.cursor.close()
