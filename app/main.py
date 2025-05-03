@@ -1,9 +1,22 @@
 # FAST API entry
 
+import asyncpg
 from fastapi import FastAPI
-from app.routes import users
+from app.routes import users, farmers
 
 app = FastAPI(title = "Farm-Client API (RAW SQL)")
 
-app.include_router(users.router, prefix="/api", tags=["Users"])
+app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(farmers.router, prefix="/api/farmers", tags=["Farmers"])
 
+app.state.db_pool = None
+
+@app.on_event("startup")
+async def startup():
+    app.state.db_pool = await asyncpg.create_pool(
+        user="postgres", password="pass", database="mydb", host="localhost"
+    )
+
+@app.on_event("shutdown")
+async def shutdown():
+    await app.state.db_pool.close()

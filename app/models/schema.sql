@@ -1,0 +1,14 @@
+-- ORDERS TABLE
+-- order_id
+-- total_price
+-- status
+-- order_date
+
+-- ORDER ITEMS TABLE
+-- item_id
+-- order_id
+-- product_id
+-- farmer_id
+-- quantity
+-- unit_price
+-- total_price (preferrably: unit_price * quantity)
