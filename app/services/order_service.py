@@ -15,6 +15,7 @@ class OrderService:
         self.db_pool = db_pool
 
     async def create_orders(self, buyer_id: int, items: List[dict], delivery_address: str = ""):
+        #this will be for a normal user
         order_id = str(uuid.uuid4())[:5]
         if not items:
             raise HTTPException(
@@ -77,5 +78,17 @@ class OrderService:
 
             return {"order_id": order_id, "message": "Order places successfully"}
         
-    async def view_requests(self, user_id, items: List[dict]):
-        pass
+    async def view_cart(self, user_id, items: List[dict]):
+        # view cart -> for a normal user's dashboard
+        try:
+            with self.db_pool.acquire() as conn:
+                # fetch a list of requests first
+                requested_items = []
+                for item in item:
+                    product_id = item["product_id"]
+                    quantity = item["quantity"]
+
+                    product = await conn.fetchrow(
+                        "SELECT COUNT (*) FROM order_list WHERE user_id = $1",
+                        user_id
+                    )
