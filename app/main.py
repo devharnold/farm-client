@@ -2,7 +2,7 @@
 
 import asyncpg
 from fastapi import FastAPI
-from app.routes import users, farmers
+from app.api.routes import users, farmers
 
 app = FastAPI(title = "Farm-Client API (RAW SQL)")
 

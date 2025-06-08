@@ -5,7 +5,7 @@ from app.db import get_db_pool
 
 router = APIRouter()
 
-@router.post("/register")
+@router.post("/")
 async def register_farmer(req: RegisterRequest, db_pool=Depends(get_db_pool)):
     farmer_service = FarmerService(db_pool)
     return await farmer_service.register_farmer(

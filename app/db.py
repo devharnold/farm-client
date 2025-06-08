@@ -20,7 +20,7 @@ async def init_db_pool():
     )
 
 async def create_pool():
-    return await asyncpg.create_pool(dsn="postgresql://user:password@localhost:5432/your_db")
+    return await asyncpg.create_pool(dsn="postgresql://user:password@localhost:5432/")
 
 def get_db_pool(request: Request):
     return request.app.state.db_pool

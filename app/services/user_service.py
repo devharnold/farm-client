@@ -51,6 +51,25 @@ class UserService:
         finally:
             self._cleanup
 
+    def get_user_by_email(self, email: str) -> None:
+        try:
+            self.cursor.execute("SELECT * FROM users WHERE email = %s", (email))
+            user = self.cursor.fetchone()
+
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found"
+                )
+            email = user
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Search failed!: str{e}"
+            )
+            
+
     def user_login(self, email: str, password: str):
         try:
             self.cursor.execute(
@@ -81,6 +100,8 @@ class UserService:
             )
         finally:
             self._cleanup()
+
+
 
     def _cleanup(self):
         if self.cursor:

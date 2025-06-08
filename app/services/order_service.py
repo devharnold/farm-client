@@ -14,7 +14,7 @@ class OrderService:
     def __init__(self, db_pool: asyncpg.pool.Pool):
         self.db_pool = db_pool
 
-    async def create_orders(self, buyer_id: int, items: List[dict], delivery_address: str = ""):
+    async def create_orders(self, buyer_id: int, items: List[dict], delivery_address: str = "", date_created=datetime.now()):
         #this will be for a normal user
         order_id = str(uuid.uuid4())[:5]
         if not items:
@@ -78,17 +78,73 @@ class OrderService:
 
             return {"order_id": order_id, "message": "Order places successfully"}
         
-    async def view_cart(self, user_id, items: List[dict]):
-        # view cart -> for a normal user's dashboard
-        try:
-            with self.db_pool.acquire() as conn:
-                # fetch a list of requests first
-                requested_items = []
-                for item in item:
-                    product_id = item["product_id"]
-                    quantity = item["quantity"]
+    async def remove_item(self, order_id, user_id, items: List[dict], date_removed=datetime.now()):
+        # remove items/ an item from the orders list
+        async with self.db_pool.acquire() as conn:
+            order_list = []
+            for item in items:
+                product_id = item["product_id"]
+                
 
-                    product = await conn.fetchrow(
-                        "SELECT COUNT (*) FROM order_list WHERE user_id = $1",
-                        user_id
+        
+    async def view_cart(self, order_id, items: List[dict], date_created=datetime.now()):
+        # view cart -> for a normal user's dashboard
+        with self.db_pool.acquire() as conn:
+            # fetch a list of requests first
+            requested_items = []
+            for item in items:
+                product_id = item["product_id"]
+                quantity = item["quantity"]
+                unit_price = item["unit_price"]
+                total_price = item["total_price"]
+                farmer_id = item["farmer_id"]
+                date_created = item["date_created"]
+                orders = await conn.fetchrow(
+                    "SELECT COUNT (*) FROM order_list WHERE order_id = $1",
+                    order_id
+                )
+                if not orders:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Orders not found!"
                     )
+                
+                return requested_items.append({
+                    "product_id": product_id,
+                    "quantity": quantity,
+                    "unit_price": unit_price,
+                    "total_price": total_price,
+                    "farmer_id": farmer_id,
+                    "date_created": date_created
+                })
+            
+    async def view_orders(self, user_id, order_id, items: List[dict], date_created=datetime.now()):
+        # farmer views the requested orders from a specific user
+        with self.db_pool.acquire() as conn:
+            ordered_items = []
+            for item in items:
+                product_id = item["product_id"]
+                quantity = item["quantity"]
+                unit_price = item["unit_price"]
+                total_price = item["total_price"]
+                user_id = item["user_id"]
+                date_created = item["date"]
+                orders = await conn.fetrow(
+                    "SELECT COUNT(*) FROM orders WHERE order_id = $1",
+                    (order_id)
+                )
+                if not orders:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Order cannot be traced"
+                    )
+                
+                return ordered_items.append({
+                    "product_id": product_id,
+                    "quantity": quantity,
+                    "unit_price": unit_price,
+                    "total_price": total_price,
+                    "user_id": user_id,
+                    "date": date_created
+                })
+
