@@ -1,17 +1,22 @@
 # user service business logic
-from app.db.connection import get_db_connection
-from app.auth.password_utils import hash_password, verify_password, validate_password_strength
-from app.auth.jwt_handler import create_access_token
-from fastapi import HTTPException, status
 import uuid
 from uuid import uuid4
+import logging
+import asyncpg
+from typing import List
+from datetime import datetime
+from fastapi import HTTPException, status
+from app.db import get_db_pool
+from app.utils.token import create_access_token
+from app.auth.password_utils import validate_password_strength, hash_password, verify_password
+
+logging.basicConnfig(level=logging.INFO)
 
 class UserService:
-    def __init__(self):
-        self.conn = get_db_connection()
-        self.cursor = self.conn.cursor()
+    def __init__(self, db_pool: asyncpg.pool.Pool):
+        self.db_pool = db_pool
 
-    def register_user(self, email: str, password: str, username: str, role: str):
+    async def register_user(self, email: str, password: str, phone: str, username: str, role: str):
         # Generate user_id and hash password
         user_id = str(uuid.uuid4())[:8]
         hashed_password = hash_password(password)
@@ -20,36 +25,29 @@ class UserService:
         if not validate_password_strength(password):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Password is too weak, Ensure it contains the requirements!"
+                detail="Password is too weak!"
             )
         
-        # Check if the user already exists
-        self.cursor.execute("SELECT id FROM users WHERE email = %s OR username = %s", (email, username))
-        if self.cursor.fetchone():
+        existing = await self.conn.fetchrow(
+            "SELECT id FROM users WHERE email = $1 OR username = $2", email, username
+        )
+        if existing:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="User with this email already exists"
+                detail="User already exists"
             )
         
         try:
-            # Insert new user into the database
-            self.cursor.execute(
-                "INSERT INTO users (id, username, email, password, role) VALUES (%s, %s, %s, %s, %s) RETURNING id",
-                (user_id, username, email, hashed_password, role)
+            row = await self.conn.fetchrow(
+                "INSERT INTO users (id, username, email, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+                user_id, username, email, hashed_password, phone, role
             )
-            user_id = self.cursor.fetchone()[0]
-            self.conn.commit()
-
-            return {"message": "User registered successfully", "user_id": user_id}
-        
+            return {"message": "User registered Successfully", "user_id": row["id"]}
         except Exception as e:
-            self.conn.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"An error occurred while registering the user: {str(e)}"
+                detail=f"Error registering user: {str(e)}"
             )
-        finally:
-            self._cleanup
 
     def get_user_by_email(self, email: str) -> None:
         try:
@@ -68,7 +66,6 @@ class UserService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Search failed!: str{e}"
             )
-            
 
     def user_login(self, email: str, password: str):
         try:
@@ -98,13 +95,3 @@ class UserService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Login failed: {str(e)}"
             )
-        finally:
-            self._cleanup()
-
-
-
-    def _cleanup(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.conn:
-            self.conn.close()

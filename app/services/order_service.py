@@ -53,14 +53,15 @@ class OrderService:
                     "quantity": quantity,
                     "unit_price": product["price"],
                     "total_price": item_total,
-                    "farmer_id": product["farmer_id"]
+                    "farmer_id": product["farmer_id"],
+                    "order_date": product["date_time"]
                 })
 
             order_row = await conn.fetchrow(
                 """INSERT INTO orders (user_id, total_price, delivery_address, payment_method, status, order_date)
                     VALUES ($1, $2, $3, $4, $5, $6)
                     RETURNING id
-                """, buyer_id, total_price, delivery_address, payment_method, datetime.now()
+                """, buyer_id, total_price, delivery_address, payment_method, date_created
             )
             order_id = order_row["id"]
 
@@ -84,6 +85,8 @@ class OrderService:
             order_list = []
             for item in items:
                 product_id = item["product_id"]
+                quantity = item["quantity"]
+                
                 
 
         

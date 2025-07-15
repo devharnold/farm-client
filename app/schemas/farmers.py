@@ -26,6 +26,12 @@ class AddProductRequest(BaseModel):
     quantity: str
     price: float
 
+class GetFarmerRequest(BaseModel):
+    email: str
+    username: str
+    phone: str
+    farmer_id: str
+
 class ProductResponse(BaseModel):
     product_id: str
     name: str

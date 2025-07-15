@@ -1,3 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db import get_db_pool
-from app.schemas.
+from app.schemas.product import ProductRequest, ProductRequestResponse
+from app.services.product_service import ProductService
+
+router = APIRouter()
+
+@router.post("/")
+async def create_product(req: ProductRequest)

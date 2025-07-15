@@ -2,15 +2,15 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
-class RegisterRequest(BaseModel): 
+class UserRegisterRequest(BaseModel): 
     email: EmailStr
     password: str
     username: str
+    phone: str
     role: str
 
 class GetUserRequest(BaseModel):
     email: EmailStr
-    first_name: str
     username: str
     user_id: str
 
