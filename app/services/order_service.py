@@ -14,7 +14,7 @@ class OrderService:
     def __init__(self, db_pool: asyncpg.pool.Pool):
         self.db_pool = db_pool
 
-    async def create_orders(self, buyer_id: int, items: List[dict], delivery_address: str = "", date_created=datetime.now()):
+    async def create_orders(self, buyer_id: int, items: List[dict], payment_method: str, delivery_address: str = "", date_created=datetime.now()):
         #this will be for a normal user
         order_id = str(uuid.uuid4())[:5]
         if not items:

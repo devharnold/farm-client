@@ -1,5 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 class RegisterRequest(BaseModel):
@@ -7,6 +6,7 @@ class RegisterRequest(BaseModel):
     password: str
     username: str
     role: str
+    created_at: datetime
 
 class RegisterResponse(BaseModel):
     message: str
@@ -19,31 +19,8 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
 
-class AddProductRequest(BaseModel):
-    farmer_id: str
-    name: str
-    category: str
-    quantity: str
-    price: float
-
 class GetFarmerRequest(BaseModel):
     email: str
     username: str
     phone: str
     farmer_id: str
-
-class ProductResponse(BaseModel):
-    product_id: str
-    name: str
-    category: str
-    quantity: int
-    price: float
-    created_at: datetime
-    updated_at: datetime
-
-
-class DeleteProductResponse(BaseModel):
-    message: str
-
-class ResetQuantityResponse(BaseModel):
-    message: str

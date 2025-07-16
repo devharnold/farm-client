@@ -14,13 +14,17 @@ async def regsiter_user(req: UserRegisterRequest, db_pool=Depends(get_db_pool)):
         password=req.password,
         username=req.username,
         phone=req.phone,
-        role=req.role
+        role=req.role,
+        created_at=req.created_at
     )
 
 @router.post("/<int:user_id>/login")
-def login(user: LoginRequest):
+def login(req: LoginRequest):
     try:
-        user = UserService.user_login()
+        user = UserService.user_login(
+            email=req.email,
+            password=req.password
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error {e}")
     return user
@@ -31,9 +35,7 @@ async def get_user(req: GetUserRequest, db_pool=Depends(get_db_pool)):
     try:
         user_service = UserService(db_pool)
         return await user_service.get_user_by_email(
-            email=req.email,
-            username=req.username,
-            user_id=req.user_id
+            email=req.email
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error {e}")

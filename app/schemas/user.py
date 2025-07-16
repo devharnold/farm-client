@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
 
 class UserRegisterRequest(BaseModel): 
@@ -8,10 +7,15 @@ class UserRegisterRequest(BaseModel):
     username: str
     phone: str
     role: str
+    created_at: datetime
 
 class GetUserRequest(BaseModel):
     email: EmailStr
+
+class GetUserResponse(BaseModel):
+    email: EmailStr
     username: str
+    phone: str
     user_id: str
 
 class RegisterResponse(BaseModel):

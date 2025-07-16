@@ -8,8 +8,10 @@ class PlaceOrderRequest(BaseModel):
     farmer_id: str
     unit_price: float
     total_price: float
+    created_at: datetime
 
 class PlaceOrderResponse(BaseModel):
+    user_id: str
     product_id: str
     order_id: str
     product_category: str

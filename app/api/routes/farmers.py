@@ -14,13 +14,17 @@ async def register_farmer(req: RegisterRequest, db_pool=Depends(get_db_pool)):
         email=req.email,
         password=req.password,
         username=req.username,
-        role=req.role
+        role=req.role,
+        created_at=req.created_at
     )
 
 @router.post("/<int:farmer_id>/login")
-def login(farmer: FarmerLoginRequest):
+def login(req: FarmerLoginRequest):
     try:
-        farmer = FarmerService.farmer_login()
+        farmer = FarmerService.farmer_login(
+            email=req.email,
+            password=req.password
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error{e}")
     return farmer
@@ -33,6 +37,7 @@ async def get_farmer(req: GetFarmerRequest, db_pool=Depends(get_db_pool)):
         return await farmer_service.get_farmer_by_email(
             email=req.email,
             username=req.username,
+            phone=req.phone,
             farmer_id=req.farmer_id
         )
     except Exception as e:
