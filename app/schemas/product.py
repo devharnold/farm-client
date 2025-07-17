@@ -45,3 +45,9 @@ class ResetQuantityResponse(BaseModel):
     product_id: str
     product_quantity: int
 
+class DeleteProductRequest(BaseModel):
+    product_id: str
+
+class DeleteProductResponse(BaseModel):
+    product_id: str
+    message: str

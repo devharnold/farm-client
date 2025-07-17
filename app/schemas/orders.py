@@ -19,6 +19,30 @@ class PlaceOrderResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+class ViewOrdersRequest(BaseModel):
+    user_id: str
+
+class ViewOrdersResponse(BaseModel):
+    user_id: str
+    product_id: str
+    product_quantity: str
+    total_price: float
+    updated_at: datetime
+
+class ViewCartRequest(BaseModel):
+    product_id: str
+    product_quantity: str
+    unit_price: float
+    total_price: float
+    date_created: datetime
+
+class ViewCartResponse(BaseModel):
+    product_id: str
+    product_quantity: str
+    unit_price: float
+    total_price: float
+    date_created: datetime
+
 class DeleteProductFromOrderRequest(BaseModel):
     product_id: str
 
