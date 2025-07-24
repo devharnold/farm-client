@@ -21,7 +21,7 @@ def validate_password_strength(password: str) -> None:
     if not re.search(r"[!@#$%^&*()[]?""<>"):
         raise ValueError("Password must contain at least one special character")
     
-def hash_password(password: str) -> None:
+def hash_password(password: str) -> str:
     #Validate a password then hash it
     validate_password_strength(password)
     return pwd_context.hash(password)

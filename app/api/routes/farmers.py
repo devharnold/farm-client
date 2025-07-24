@@ -1,6 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from auth.password_utils import verify_password
-from utils.token import create_access_token
 from app.services.farmer_service import FarmerService
 from app.schemas.farmers import RegisterRequest, FarmerLoginRequest, GetFarmerRequest
 from app.db import get_db_pool

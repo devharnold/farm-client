@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Depends
-from utils.token import create_access_token
 from app.db import get_db_pool
 from app.schemas.user import UserRegisterRequest, LoginRequest, GetUserRequest
 from app.services.user_service import UserService

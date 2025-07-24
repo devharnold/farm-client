@@ -67,6 +67,7 @@ class UserService:
                 detail=f"Search failed!: str{e}"
             )
 
+
     def user_login(self, email: str, password: str):
         try:
             self.cursor.execute(

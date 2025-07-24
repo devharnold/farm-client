@@ -1,7 +1,13 @@
-from jose import jwt, JWTError
+import jwt
+import os
+import dotenv
+from dotenv import load_dotenv
 from fastapi import Request, HTTPException, Depends
+from jwt import ExpiredSignatureError, InvalidTokenError 
 
-SECRET_KEY = "your-secret"
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECREET_KEY")
 ALGORITHM = "HS256"
 
 async def get_current_user(request: Request):
@@ -11,7 +17,9 @@ async def get_current_user(request: Request):
     try:
         payload = jwt.decode(token[7:], SECRET_KEY, algorithms=[ALGORITHM])
         return payload  # e.g. {'id': 1, 'username': 'john', 'role': 'farmer'}
-    except JWTError:
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid token")
 
 def require_role(role: str):
