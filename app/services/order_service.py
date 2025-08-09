@@ -7,6 +7,7 @@ from typing import List
 from datetime import datetime
 from fastapi import HTTPException, status
 from app.db import get_db_pool
+from app.services.user_service import UserService
 
 logging.basicConfig(level=logging.INFO)
 
@@ -14,7 +15,7 @@ class OrderService:
     def __init__(self, db_pool: asyncpg.pool.Pool):
         self.db_pool = db_pool
 
-    async def create_orders(self, buyer_id: int, items: List[dict], payment_method: str, delivery_address: str = "", date_created=datetime.now()):
+    async def create_orders(self, user_id: int, items: List[dict], payment_method: str, delivery_address: str = "", date_created=datetime.now()):
         #this will be for a normal user
         order_id = str(uuid.uuid4())[:5]
         if not items:
@@ -22,9 +23,11 @@ class OrderService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"No items provided"
             )
+        
         async with self.db_pool.acquire() as conn:
             total_price = 0.0
             order_items = []
+            
 
             for item in items:
                 product_id = item["product_id"]
@@ -49,6 +52,7 @@ class OrderService:
                 total_price += item_total
 
                 order_items.append({
+                    "user_id": user_id,
                     "product_id": product_id,
                     "quantity": quantity,
                     "unit_price": product["price"],
@@ -61,7 +65,7 @@ class OrderService:
                 """INSERT INTO orders (user_id, total_price, delivery_address, payment_method, status, order_date)
                     VALUES ($1, $2, $3, $4, $5, $6)
                     RETURNING id
-                """, buyer_id, total_price, delivery_address, payment_method, date_created
+                """, user_id, total_price, delivery_address, payment_method, date_created
             )
             order_id = order_row["id"]
 

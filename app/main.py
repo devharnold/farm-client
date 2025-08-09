@@ -2,14 +2,15 @@
 
 import asyncpg
 from fastapi import FastAPI
-from app.api.routes import users, farmers, products, orders
+from app.api.routes import users, farmers, products, orders, dashboard
 
 app = FastAPI(title = "Farm-Client API (RAW SQL)")
 
-app.include_router(users.router, prefix="/api/users", tags=["Users"])
-app.include_router(farmers.router, prefix="/api/farmers", tags=["Farmers"])
-app.include_router(products.router, prefix="/api/products", tags=["Products"])
-app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+app.include_router(farmers.router, prefix="/api/v1/farmers", tags=["Farmers"])
+app.include_router(products.router, prefix="/api/v1/products", tags=["Products"])
+app.include_router(orders.router, prefix="/api/v1/orders", tags=["Orders"])
+app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Farmer Dashboard"])
 
 app.state.db_pool = None
 
